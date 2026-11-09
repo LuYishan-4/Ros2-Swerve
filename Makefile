@@ -1,21 +1,19 @@
 CXX = g++
-CXXFLAGS = -Wall -g -std=c++17 -O2 -Isrc/include
+CXXFLAGS = -std=c++17 -Isrc -Isrc/lib -Isrc/subSystem $(shell ros2 pkg cflags-libs rclcpp 2>/dev/null || echo "")
 
-TARGET = swerve_
-
-SRCS = src/main.cpp
-OBJS = $(SRCS:.cpp=.o)
+SRC = $(shell find src -name "*.cpp")
+OBJ = $(SRC:.cpp=.o)
+TARGET = bin/swerve_robot
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+$(TARGET): $(OBJ)
+	mkdir -p bin
+	$(CXX) $(OBJ) -o $(TARGET)
 
-
-src/%.o: src/%.cpp
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f src/*.o $(TARGET)
-
-.PHONY: all clean
+	find src -name "*.o" -delete
+	rm -f $(TARGET)
